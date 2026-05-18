@@ -1,6 +1,8 @@
 // src/App.jsx — Cognify v2 — Full Sellable Version
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
 
+import { GoogleLogin } from "@react-oauth/google";
+
 import { authAPI, coursesAPI, videosAPI, searchAPI, chatAPI, billingAPI } from "./api";
 
 /* ─── Auth Context ─────────────────────────────────────────────────────────── */
@@ -1038,18 +1040,23 @@ const AuthPage = ({ onBack }) => {
   };
 
   const GoogleBtn = () => (
-  <div>
-    <div id="g_id_onload"
-      data-client_id={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-      data-callback="handleGoogleCredential"
-      data-auto_prompt="false"/>
-    <div className="g_id_signin"
-      data-type="standard"
-      data-theme="filled_black"
-      data-text="continue_with"
-      data-shape="rectangular"
-      data-width="360"/>
-  </div>
+  <GoogleLogin
+    onSuccess={async (credentialResponse) => {
+      setL(true);
+      try {
+        const {data} = await authAPI.google(credentialResponse.credential);
+        login(data.token, data.user);
+        toast.success("Signed in with Google!");
+      } catch { setErr("Google sign-in failed. Please try again."); }
+      setL(false);
+    }}
+    onError={() => setErr("Google sign-in failed.")}
+    width="360"
+    theme="filled_black"
+    shape="rectangular"
+    text="continue_with"
+    useOneTap={false}
+  />
 );
 
   useEffect(() => {
