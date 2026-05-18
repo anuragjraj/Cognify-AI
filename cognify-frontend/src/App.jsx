@@ -1,6 +1,6 @@
 // src/App.jsx — Cognify v2 — Full Sellable Version
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
-import { GoogleLogin } from "@react-oauth/google";
+
 import { authAPI, coursesAPI, videosAPI, searchAPI, chatAPI, billingAPI } from "./api";
 
 /* ─── Auth Context ─────────────────────────────────────────────────────────── */
@@ -1037,26 +1037,38 @@ const AuthPage = ({ onBack }) => {
     setL(false);
   };
 
-  const GoogleBtn = () => {
-    return (
-      <GoogleLogin
-        onSuccess={async (credentialResponse) => {
-          setL(true);
-          try {
-            const {data} = await authAPI.google(credentialResponse.credential);
-            login(data.token, data.user);
-            toast.success("Signed in with Google!");
-          } catch { setErr("Google sign-in failed. Please try again."); }
-          setL(false);
-        }}
-        onError={() => setErr("Google sign-in failed.")}
-        width="100%"
-        theme="filled_black"
-        shape="rectangular"
-        text="continue_with"
-      />
-    );
+  const GoogleBtn = () => (
+  <div>
+    <div id="g_id_onload"
+      data-client_id={import.meta.env.VITE_GOOGLE_CLIENT_ID}
+      data-callback="handleGoogleCredential"
+      data-auto_prompt="false"/>
+    <div className="g_id_signin"
+      data-type="standard"
+      data-theme="filled_black"
+      data-text="continue_with"
+      data-shape="rectangular"
+      data-width="360"/>
+  </div>
+);
+
+  useEffect(() => {
+  window.handleGoogleCredential = async (response) => {
+    setL(true);
+    try {
+      const {data} = await authAPI.google(response.credential);
+      login(data.token, data.user);
+      toast.success("Signed in with Google!");
+    } catch { setErr("Google sign-in failed."); }
+    setL(false);
   };
+  const script = document.createElement("script");
+  script.src = "https://accounts.google.com/gsi/client";
+  script.async = true;
+  script.defer = true;
+  document.body.appendChild(script);
+  return () => { delete window.handleGoogleCredential; };
+}, []);
 
   return (
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:18,position:"relative",overflow:"hidden"}}>
