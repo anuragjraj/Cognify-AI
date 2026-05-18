@@ -48,12 +48,11 @@ router.post("/google", async (req, res) => {
   const { credential } = req.body;
   if (!credential) return res.status(400).json({ error: "No credential" });
   try {
-    // Fetch user info directly from Google using the access token
-    const response = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo`, {
-      headers: { Authorization: `Bearer ${credential}` }
+    const ticket = await googleClient.verifyIdToken({
+      idToken:  credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
-    if (!response.ok) return res.status(401).json({ error: "Invalid Google token" });
-    const { id: googleId, email, name, picture } = await response.json();
+    const { sub: googleId, email, name, picture } = ticket.getPayload();
 
     let user = await prisma.user.findFirst({
       where: { OR: [{ googleId }, { email: email.toLowerCase() }] },

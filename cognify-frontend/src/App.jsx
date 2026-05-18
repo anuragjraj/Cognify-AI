@@ -1055,10 +1055,8 @@ const AuthPage = ({ onBack }) => {
     theme="filled_black"
     shape="rectangular"
     text="continue_with"
-    useOneTap={false}
   />
 );
-
   useEffect(() => {
   window.handleGoogleCredential = async (response) => {
     setL(true);
