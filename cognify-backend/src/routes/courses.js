@@ -7,7 +7,7 @@ const yt     = require("../services/youtube");
 const { EventEmitter } = require("events");
 const jwt    = require("jsonwebtoken");
 
-const FREE_COURSE_LIMIT  = 3;
+const FREE_COURSE_LIMIT  = 4;
 const FREE_MODULE_COUNT  = 5;
 const PRO_MODULE_COUNT   = 9;
 
